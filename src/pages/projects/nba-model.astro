@@ -1,0 +1,195 @@
+---
+import CaseStudyLayout from '@components/CaseStudyLayout.astro';
+import StatCallout from '@components/StatCallout.astro';
+import LinkButton from '@components/LinkButton.astro';
+---
+
+<CaseStudyLayout
+  title="NBA Betting Model"
+  subtitle="A hybrid team + player model for NBA moneylines, spreads and totals — built as a full production pipeline and evaluated honestly against the betting market."
+  category="Machine Learning"
+  tools={['Python', 'LightGBM', 'FLAML', 'scikit-learn', 'SQLite', 'pdfplumber', 'nba_api', 'Streamlit', 'Plotly']}
+  duration="Seasons 2019-20 to present · running daily in-season"
+  ogDescription="Predicting NBA games with machine learning: point-in-time features, walk-forward validation, and a live Streamlit dashboard."
+>
+
+  <!-- OBJECTIVE -->
+  <section>
+    <p class="cs-section-label">Objective</p>
+    <h2 class="cs-section-title">Can a model built from public data beat the market?</h2>
+    <div class="cs-prose">
+      <p>
+        Predict NBA moneylines, spreads and totals, then measure the results against the
+        market rather than against raw win/loss records. The project is a full pipeline:
+        data ingestion, point-in-time features, gradient-boosted models, and a production
+        schedule that runs daily during the season.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- DATA SOURCES -->
+  <section>
+    <p class="cs-section-label">Data Sources</p>
+    <h2 class="cs-section-title">Box scores, opening and closing lines, and official injury reports</h2>
+    <div class="cs-prose">
+      <p>
+        Box scores come from <span class="cs-code-inline">nba_api</span>; opening and closing
+        lines come from Sports Book Review. I also archived and parsed the official NBA
+        injury report PDFs (2019-20 onward) with <span class="cs-code-inline">pdfplumber</span>.
+        Everything lands in a ~1 GB SQLite database.
+      </p>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-6 mt-8">
+      <StatCallout value="7,936" label="Games backtested" sublabel="2019-20 to 2025-26" />
+      <StatCallout value="3" label="Markets modeled" sublabel="Moneyline · spread · total" />
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- METHODOLOGY -->
+  <section>
+    <p class="cs-section-label">Methodology</p>
+    <h2 class="cs-section-title">Point-in-time features, tuned gradient boosting, walk-forward evaluation</h2>
+    <div class="cs-prose">
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-2 mb-2">Features — only what was known before tip-off</h3>
+      <ul class="list-disc pl-5 space-y-2">
+        <li><strong class="text-white/85">Team form:</strong> exponentially weighted box-score and efficiency stats (5- and 20-game spans), offense-vs-defense matchups, recent record.</li>
+        <li><strong class="text-white/85">Players:</strong> rolling Box Plus/Minus per player, aggregated to the roster and centered on a trailing league mean.</li>
+        <li><strong class="text-white/85">Schedule:</strong> rest, back-to-backs, games in the last 7 days, travel distance, time zones, altitude.</li>
+        <li><strong class="text-white/85">Injuries:</strong> the report as published at a fixed time on game day, with each absence weighted by player value and by the empirical chance that status actually sits.</li>
+      </ul>
+    </div>
+
+    <pre class="cs-code"># Probability a player with each report status actually plays (empirical)
+Out        ≈  0%
+Doubtful   ≈  2%
+Questionable ≈ 57%
+Probable   ≈ 93%</pre>
+
+    <div class="cs-prose">
+      <p>
+        Training and live inference build features with the same code, and parity tests
+        match to floating-point precision — so the backtest reflects what production does.
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Models</h3>
+      <p>
+        One LightGBM model each for win probability, margin and total. Feature selection
+        runs in two steps: cluster correlated features, then keep only those that beat a
+        shuffled-target importance baseline. Hyperparameters are tuned with FLAML, and win
+        probabilities are isotonically calibrated on a time-ordered holdout.
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Evaluation</h3>
+      <p>
+        Walk-forward by season: train on past seasons, test on the next. Every result is
+        compared with the de-vigged market consensus. Closing line value (CLV) is the main
+        measure of edge, because it is far less noisy than game results.
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Production</h3>
+      <p>
+        Two scheduled jobs run in-season: an odds and injury-report snapshotter every 30
+        minutes on game days, and a daily inference run at 12:15 PM ET that syncs data,
+        predicts the day's games and publishes the dashboard data. GitHub Actions runs smoke
+        checks.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- RESULTS -->
+  <section>
+    <p class="cs-section-label">Impact & Results</p>
+    <h2 class="cs-section-title">The model finds real signal, but the market is sharp </h2>
+    <div class="cs-prose">
+      <p>
+        The market beat the model in most seasons and every market, and the model adds
+        nothing beyond the closing line. But where the model disagrees with the opening
+        line, the lines move toward it — a measurable, if small, edge.
+      </p>
+    </div>
+
+    <div class="overflow-x-auto my-8">
+      <table class="w-full font-mono text-sm text-left border border-white/10">
+        <thead class="text-white/40 text-xs uppercase tracking-wide">
+          <tr class="border-b border-white/10">
+            <th class="p-3 font-normal">7,936 games</th>
+            <th class="p-3 font-normal">My model</th>
+            <th class="p-3 font-normal">Opening line</th>
+            <th class="p-3 font-normal">Closing line</th>
+          </tr>
+        </thead>
+        <tbody class="text-white/70">
+          <tr class="border-b border-white/5"><td class="p-3">Moneyline log loss</td><td class="p-3">0.644</td><td class="p-3">0.613</td><td class="p-3">0.606</td></tr>
+          <tr class="border-b border-white/5"><td class="p-3">Spread MAE (pts)</td><td class="p-3">11.06</td><td class="p-3">10.61</td><td class="p-3">10.48</td></tr>
+          <tr><td class="p-3">Total MAE (pts)</td><td class="p-3">15.65</td><td class="p-3">14.55</td><td class="p-3">14.26</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid sm:grid-cols-3 gap-6">
+      <StatCallout value="+0.26–0.42" label="Pts of CLV on totals" sublabel="t ≈ 7–8" size="md" />
+      <StatCallout value="+0.12–0.23" label="Pts of CLV on spreads" sublabel="Smaller than the ~4.5% vig" size="md" />
+      <StatCallout value="21–25%" label="Of line movement explained by injuries" sublabel="Priced fully by the close" size="md" />
+    </div>
+
+    <div class="cs-prose mt-8">
+      <p>
+        <strong class="text-white/85">Injury news is the main thing that moves NBA lines after
+        the open, and the close prices it completely.</strong> The closing line's error is
+        unrelated to reported absences (t ≈ 0). No snapshot of the injury report I tested beats
+        the opening line at a statistically credible level — the usable signal is timing, worth
+        about +1.8 points of CLV if you act before the market moves. I now run a timestamped
+        odds collector in-season to test whether that is achievable.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- CHALLENGES -->
+  <section>
+    <p class="cs-section-label">Challenges & Tradeoffs</p>
+    <h2 class="cs-section-title">Limitations and next steps</h2>
+    <div class="cs-prose">
+      <p>
+        <strong class="text-white/85">Beating the closing line from public box scores is not
+        realistic.</strong> The avenues left are timing — information before the market
+        reacts — and softer markets such as player props.
+      </p>
+      <p>
+        <strong class="text-white/85">A direct "line adjustment" model</strong> that predicts
+        the opening line's error from injury news should extract more than bolting injury
+        features onto a general model, which was a statistical null in ablation.
+      </p>
+      <p>
+        <strong class="text-white/85">Early-season cold start</strong> is handled with
+        exponentially weighted averages that carry across seasons; backtests show the model
+        doesn't fall further behind the market early. Roster- and market-based priors are a
+        possible improvement.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- LINKS -->
+  <section>
+    <p class="cs-section-label">Links</p>
+    <h2 class="cs-section-title">Code & live dashboard</h2>
+    <div class="flex flex-wrap gap-4">
+      <LinkButton href="https://github.com/jnish23/nba-model-hybrid" label="GitHub Repo" />
+      <LinkButton variant="primary" href="https://nba-model-betting-dashboard.streamlit.app/" label="Open Live Dashboard" />
+    </div>
+    <p class="font-mono text-xs text-white/30 mt-4">
+      Dashboard: today's picks, recent performance, a strategy simulator, and team and league breakdowns.
+    </p>
+    <!-- TODO: add dashboard screenshots from /public/images/ (e.g. nba-dashboard.png) -->
+  </section>
+
+</CaseStudyLayout>

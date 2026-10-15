@@ -1,0 +1,225 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ProjectCard from '@components/ProjectCard.astro';
+
+const featuredProjects = [
+  {
+    href: '/projects/nba-model',
+    title: 'NBA Betting Model',
+    description:
+      'Gradient-boosted pipeline predicting NBA games, evaluated against the market with walk-forward validation and a live dashboard.',
+    tools: ['Python', 'LightGBM', 'Streamlit'],
+    metric: '7,936 games backtested',
+    metricSublabel: '+0.26–0.42 pts closing line value on totals',
+    category: 'Machine Learning',
+  },
+  {
+    href: '/projects/running-start',
+    title: 'Dual-Enrollment Impact Analysis',
+    description:
+      'Causal inference on linked K-12 and postsecondary data, using propensity score matching and Bayesian hierarchical models.',
+    tools: ['R', 'brms', 'Stan'],
+    metric: 'Bayesian causal inference',
+    metricSublabel: 'selection-bias-aware design',
+    category: 'Causal Inference',
+  },
+];
+
+const tagline = [
+  '4+ Years Experience',
+  'ML',
+  'Causal Inference',
+  'Education',
+  'Sports Analytics',
+];
+---
+
+<BaseLayout>
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="max-w-6xl mx-auto px-6 pt-28 pb-20">
+    <p class="font-mono text-[#2DD4BF] text-sm mb-6 tracking-widest uppercase">
+      Data Scientist · Redmond, WA
+    </p>
+
+    <h1 class="font-display text-6xl md:text-8xl text-white leading-[1.05] mb-8 max-w-4xl">
+      Jordan<br />Nishimura
+    </h1>
+
+    <p class="text-white/70 text-xl md:text-2xl leading-relaxed max-w-2xl mb-10 font-sans">
+      Data scientist with 4+ years turning messy, real-world data into
+      decisions&nbsp;— from predicting student outcomes to predicting NBA
+      games with machine learning.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-wrap gap-4 mb-14">
+      <a
+        href="/projects"
+        class="
+          inline-flex items-center gap-2
+          bg-[#2DD4BF] text-[#0D1117]
+          font-sans font-semibold text-sm tracking-wide
+          px-6 py-3 rounded
+          hover:bg-[#2DD4BF]/90 transition-colors duration-200
+        "
+      >
+        View Projects
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+      </a>
+      <a
+        href="/Jordan-Nishimura-Resume.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="
+          inline-flex items-center gap-2
+          border border-white/25 text-white/80
+          font-sans font-medium text-sm tracking-wide
+          px-6 py-3 rounded
+          hover:border-[#2DD4BF]/60 hover:text-white transition-colors duration-200
+        "
+      >
+        Download Resume
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </a>
+    </div>
+
+    <!-- Tagline row -->
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+      {tagline.map((tag, i) => (
+        <>
+          <span class="font-mono text-xs text-white/35 tracking-widest uppercase">{tag}</span>
+          {i < tagline.length - 1 && (
+            <span class="text-white/15 select-none" aria-hidden="true">/</span>
+          )}
+        </>
+      ))}
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="max-w-6xl mx-auto px-6">
+    <hr class="border-white/10" />
+  </div>
+
+  <!-- ============================================================
+       ABOUT
+  ============================================================ -->
+  <section class="max-w-6xl mx-auto px-6 py-20" id="about">
+    <p class="font-mono text-[#2DD4BF] text-xs tracking-widest uppercase mb-10">About</p>
+
+    <div class="grid md:grid-cols-2 gap-12 md:gap-20 items-start">
+      <!-- Prose -->
+      <div>
+        <h2 class="font-display text-3xl md:text-4xl text-white mb-6 leading-tight">
+          From classroom math<br />to applied machine learning.
+        </h2>
+        <div class="space-y-4 text-white/65 leading-relaxed font-sans text-base">
+          <p>
+            Jordan Nishimura is a data scientist with a background that runs from
+            classroom math teacher to sole data scientist at an education nonprofit.
+            At CCER, he built models that forecast student dropout and
+            postsecondary enrollment, and partnered with the data engineer on an
+            Azure SQL warehouse with dbt pipelines.
+          </p>
+          <p>
+            He replaced a costly third-party college-readiness service with an
+            automated SQL and dbt eligibility system covering 8,000+ students a
+            year, and applied Bayesian hierarchical models
+            to measure the real-world impact of a dual-enrollment program. Outside
+            work, he's built production-scheduled NBA and tennis prediction systems
+            with leakage-safe features and rigorous walk-forward evaluation.
+          </p>
+          <p>
+            Currently finishing a Master's in Analytics at Georgia Tech.
+          </p>
+        </div>
+      </div>
+
+      <!-- Focus areas -->
+      <div>
+        <h3 class="font-mono text-xs text-white/35 tracking-widest uppercase mb-6">
+          Current Focus
+        </h3>
+        <ul class="space-y-4">
+          {[
+            {
+              label: 'MS Analytics',
+              detail: 'Georgia Tech — in progress',
+            },
+            {
+              label: 'NBA & Tennis Prediction Modeling',
+              detail: 'Walk-forward validation, live dashboards',
+            },
+            {
+              label: 'Postsecondary Outcome Research',
+              detail: 'Causal inference on K-12 program impacts',
+            },
+          ].map(({ label, detail }) => (
+            <li class="flex gap-4 items-start">
+              <span
+                class="mt-1.5 block w-1.5 h-1.5 rounded-full bg-[#2DD4BF] shrink-0"
+                aria-hidden="true"
+              ></span>
+              <div>
+                <p class="text-white font-sans font-medium text-sm">{label}</p>
+                <p class="text-white/40 font-mono text-xs mt-0.5">{detail}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="max-w-6xl mx-auto px-6">
+    <hr class="border-white/10" />
+  </div>
+
+  <!-- ============================================================
+       FEATURED PROJECTS
+  ============================================================ -->
+  <section class="max-w-6xl mx-auto px-6 py-20" id="projects">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <p class="font-mono text-[#2DD4BF] text-xs tracking-widest uppercase mb-3">
+          Featured Projects
+        </p>
+        <h2 class="font-display text-3xl md:text-4xl text-white leading-tight">
+          Selected work
+        </h2>
+      </div>
+      <a
+        href="/projects"
+        class="hidden md:inline-flex items-center gap-1.5 font-mono text-xs text-white/40 hover:text-[#2DD4BF] transition-colors duration-200 tracking-wide"
+      >
+        View all
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      {featuredProjects.map((project) => (
+        <ProjectCard {...project} headingLevel="h3" />
+      ))}
+    </div>
+
+    <!-- Mobile "view all" link -->
+    <div class="mt-8 md:hidden text-center">
+      <a
+        href="/projects"
+        class="font-mono text-xs text-white/40 hover:text-[#2DD4BF] transition-colors duration-200"
+      >
+        View all projects →
+      </a>
+    </div>
+  </section>
+</BaseLayout>

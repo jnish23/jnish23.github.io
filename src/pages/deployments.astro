@@ -1,0 +1,176 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const deployments = [
+  {
+    name: 'NBA Betting Dashboard',
+    description:
+      "Streamlit app showing today's model picks, recent performance, a strategy simulator, and team and league breakdowns. Predictions are refreshed daily during the season.",
+    tools: ['Python', 'Streamlit', 'LightGBM', 'pandas', 'Plotly'],
+    status: 'live',
+    statusLabel: 'Live',
+    url: 'https://nba-model-betting-dashboard.streamlit.app/',
+    screenshot: '/images/NBA_model_screenshot.png',
+    screenshotAlt: 'NBA Betting Dashboard screenshot',
+  },
+  {
+    name: 'Tennis Prediction Dashboard',
+    description:
+      'Six-page Streamlit app: match predictions for winner, total games and spread; Monte Carlo tournament simulation; backtest performance; calibration plots; Elo ratings; and pipeline status. Rebuilt nightly via GitHub Actions.',
+    tools: ['Python', 'Streamlit', 'LightGBM', 'SQLite', 'GitHub Actions'],
+    status: 'live',
+    statusLabel: 'Live',
+    url: 'https://tennis-predictor-dashboard.streamlit.app/',
+    screenshot: '/public/images/Tennis_dashboard_screenshot.png',
+    screenshotAlt: 'Tennis Prediction Dashboard screenshot',
+  },
+  {
+    name: 'Japanese SRS Translator',
+    description:
+      'Installable web app that translates English into natural Japanese using the phrase plus its context, then schedules the saved phrases as spaced-repetition flashcards. Runs fully in the browser.',
+    tools: ['TypeScript', 'React', 'Vite', 'PWA', 'LLM APIs'],
+    status: 'live',
+    statusLabel: 'Live',
+    url: 'https://translation-flashcards-app-i9kj.vercel.app',
+    screenshot: '/public/images/Translation_App_screenshot.png',
+    screenshotAlt: 'Japanese SRS Translator screenshot',
+  },
+  {
+    name: 'NL-to-SQL Query Tool',
+    description:
+      'Streamlit interface for querying the NBA stats database in plain English. Type a basketball question, get back validated SQL and a data table. Schema injection + query validation prevent hallucinated column references.',
+    tools: ['Python', 'Streamlit', 'OpenAI API', 'SQLite'],
+    status: 'development',
+    statusLabel: 'In Development',
+    url: null,
+    screenshot: null, // TODO: drop /public/images/nlsql-app.png
+    screenshotAlt: 'NL-to-SQL Query Tool screenshot',
+  },
+];
+
+---
+
+<BaseLayout
+  title="Deployments | Jordan Nishimura"
+  description="Live apps and deployed data tools by Jordan Nishimura — dashboards for NBA and tennis prediction, a Japanese flashcards app, and natural language SQL querying."
+>
+  <!-- Header -->
+  <div class="max-w-6xl mx-auto px-6 pt-20 pb-12">
+    <p class="font-mono text-[#2DD4BF] text-xs tracking-widest uppercase mb-4">Live Work</p>
+    <h1 class="font-display text-5xl md:text-6xl text-white mb-4 leading-tight">
+      Live Projects &<br />Deployed Models
+    </h1>
+    <p class="font-sans text-white/50 text-base max-w-xl leading-relaxed">
+      Interactive tools built on top of the modeling work. Each app is designed for daily
+      use — not just a demo.
+    </p>
+  </div>
+
+  <!-- Deployment cards -->
+  <div class="max-w-6xl mx-auto px-6 pb-24 space-y-8">
+    {deployments.map(({ name, description, tools, status, statusLabel, url, screenshot, screenshotAlt }) => (
+      <div class="border border-white/10 rounded-lg overflow-hidden bg-white/[0.02]">
+
+        <!-- Screenshot area -->
+        <div
+          class:list={[
+            'border-b border-white/10 bg-white/[0.02] flex items-center justify-center',
+            !screenshot && 'aspect-video',
+          ]}
+        >
+          {screenshot ? (
+            <img
+              src={screenshot}
+              alt={screenshotAlt}
+              class="w-full h-auto block"
+              loading="lazy"
+            />
+          ) : (
+            <div class="flex flex-col items-center gap-3 text-center px-8">
+              <div class="w-10 h-10 rounded border border-white/15 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 3h18M3 21h18" />
+                </svg>
+              </div>
+              <p class="font-mono text-xs text-white/20">
+                {/* TODO: drop screenshot into /public/images/ and update src above */}
+                Screenshot pending — drop image in /public/images/
+              </p>
+            </div>
+          )}
+        </div>
+
+        <!-- Card body -->
+        <div class="p-7 md:flex md:items-start md:gap-10">
+          <div class="flex-1 min-w-0">
+            <!-- Status badge + name -->
+            <div class="flex flex-wrap items-center gap-3 mb-3">
+              <h2 class="font-display text-2xl text-white">{name}</h2>
+              <span
+                class:list={[
+                  'font-mono text-xs px-2.5 py-1 rounded tracking-wide',
+                  status === 'live'
+                    ? 'bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30'
+                    : 'bg-white/5 text-white/30 border border-white/10',
+                ]}
+              >
+                {status === 'live' ? '● ' : ''}{statusLabel}
+              </span>
+            </div>
+
+            <p class="font-sans text-white/55 text-sm leading-relaxed mb-5">
+              {description}
+            </p>
+
+            <!-- Tool badges -->
+            <div class="flex flex-wrap gap-2">
+              {tools.map((tool) => (
+                <span class="font-mono text-xs text-white/45 bg-white/5 border border-white/10 px-2.5 py-1 rounded">
+                  {tool}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <!-- Action button -->
+          <div class="mt-6 md:mt-0 md:shrink-0">
+            {status === 'live' ? (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 bg-[#2DD4BF] text-[#0D1117] font-sans font-semibold text-sm px-5 py-2.5 rounded hover:bg-[#2DD4BF]/90 transition-colors duration-200"
+              >
+                Open App
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ) : (
+              <button
+                disabled
+                aria-disabled="true"
+                class="inline-flex items-center gap-2 font-sans font-medium text-sm text-white/25 border border-white/10 px-5 py-2.5 rounded cursor-not-allowed"
+              >
+                {statusLabel}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    ))}
+
+    <!-- Footer note -->
+    <p class="font-mono text-xs text-white/25 pt-4 text-center">
+      More tools in progress.{' '}
+      <a
+        href="https://github.com/jnish23"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-white/40 hover:text-[#2DD4BF] transition-colors duration-200 underline underline-offset-2"
+      >
+        See GitHub for the latest.
+      </a>
+    </p>
+  </div>
+</BaseLayout>

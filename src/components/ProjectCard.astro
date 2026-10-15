@@ -1,0 +1,60 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  category: string;
+  description: string;
+  tools: string[];
+  metric: string;
+  metricSublabel: string;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const {
+  href,
+  title,
+  category,
+  description,
+  tools,
+  metric,
+  metricSublabel,
+  headingLevel = 'h2',
+} = Astro.props;
+
+const Heading = headingLevel;
+---
+
+<a
+  href={href}
+  class="
+    group flex flex-col
+    border border-white/10 rounded-lg p-7
+    hover:border-[#2DD4BF]/30 transition-colors duration-300
+    bg-white/[0.02] hover:bg-white/[0.04]
+  "
+>
+  <p class="font-mono text-[#2DD4BF]/70 text-xs tracking-widest uppercase mb-4">
+    {category}
+  </p>
+
+  <Heading class="font-display text-2xl text-white mb-3 group-hover:text-[#2DD4BF] transition-colors duration-200 leading-tight">
+    {title}
+  </Heading>
+
+  <p class="font-sans text-white/55 text-sm leading-relaxed mb-6 flex-1">
+    {description}
+  </p>
+
+  <div class="border-l-2 border-[#2DD4BF]/50 pl-4 mb-6">
+    <p class="font-mono text-[#2DD4BF] text-sm font-medium">{metric}</p>
+    <p class="font-mono text-white/35 text-xs mt-0.5">{metricSublabel}</p>
+  </div>
+
+  <div class="flex flex-wrap gap-2">
+    {tools.map((tool) => (
+      <span class="font-mono text-xs text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded">
+        {tool}
+      </span>
+    ))}
+  </div>
+</a>

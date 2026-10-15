@@ -1,0 +1,11 @@
+---
+interface Props {
+  skill: string;
+}
+
+const { skill } = Astro.props;
+---
+
+<span class="font-mono text-xs text-white/60 bg-white/[0.04] border border-white/10 px-3 py-1.5 rounded hover:border-[#2DD4BF]/30 hover:text-white/80 transition-colors duration-150">
+  {skill}
+</span>

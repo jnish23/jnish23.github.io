@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+
+# Private Claude Code files
+CLAUDE.md
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/*.bak

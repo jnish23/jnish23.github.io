@@ -1,0 +1,100 @@
+---
+import Nav from '@components/Nav.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+}
+
+const {
+  title = 'Jordan Nishimura | Data Scientist',
+  description = 'Data scientist specializing in predictive modeling, causal inference, and analytics. Based in Seattle.',
+  ogTitle = 'Jordan Nishimura | Data Scientist',
+  ogDescription = 'Portfolio of ML projects, causal inference research, and deployed data tools.',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary Meta -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    <meta property="og:url" content="https://jnish23.github.io" />
+    <meta property="og:type" content="website" />
+
+    <!-- Favicon placeholder -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body
+    class="
+      min-h-screen
+      bg-[#0D1117]
+      text-white/85
+      font-sans
+      antialiased
+      bg-dot-pattern
+      bg-dot-sm
+    "
+  >
+    <Nav />
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <footer class="border-t border-white/10 mt-24">
+      <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/40">
+        <p class="font-mono">
+          &copy; {new Date().getFullYear()} Jordan Nishimura
+        </p>
+        <nav aria-label="Footer links" class="flex items-center gap-6">
+          <a
+            href="https://github.com/jnish23"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-[#2DD4BF] transition-colors duration-200"
+          >
+            GitHub
+          </a>
+          <a
+            href="https://www.linkedin.com/in/jordan-nishimura/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-[#2DD4BF] transition-colors duration-200"
+          >
+            LinkedIn
+          </a>
+          <a
+            href="mailto:jordan.nishimura@gmail.com"
+            class="hover:text-[#2DD4BF] transition-colors duration-200"
+          >
+            Email
+          </a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

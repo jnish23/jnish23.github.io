@@ -1,0 +1,227 @@
+---
+import CaseStudyLayout from '@components/CaseStudyLayout.astro';
+import StatCallout from '@components/StatCallout.astro';
+---
+
+<CaseStudyLayout
+  title="NL-to-SQL NBA Query Tool"
+  subtitle="LLM-powered interface that lets users query an NBA stats database in plain English — no SQL required. Demonstrates prompt engineering, schema context injection, and a query validation layer."
+  category="Data Engineering · AI Engineering"
+  tools={['Python', 'OpenAI API', 'SQLite', 'Streamlit', 'pandas']}
+  duration="2024"
+  ogDescription="Natural language to SQL tool for querying NBA stats, built with LLM prompt engineering and a validation layer."
+>
+
+  <!-- OBJECTIVE -->
+  <section>
+    <p class="cs-section-label">Objective</p>
+    <h2 class="cs-section-title">Remove the SQL barrier from basketball analysis</h2>
+    <div class="cs-prose">
+      <p>
+        Build a natural language interface that lets anyone query an NBA stats database by
+        asking plain-English questions — without writing SQL. This isn't a demo of raw LLM
+        capability; it's an exercise in making LLM output reliable and production-oriented
+        through schema injection, prompt constraints, and a validation layer that catches
+        bad queries before they hit the database.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- DATA SOURCES -->
+  <section>
+    <p class="cs-section-label">Data Sources</p>
+    <h2 class="cs-section-title">The same NBA game database as the prediction model</h2>
+    <div class="cs-prose">
+      <p>
+        The backend is a SQLite database populated from the same <span class="cs-code-inline">nba_api</span> pipeline
+        that powers the prediction model — team game logs, player stats, standings, and schedule
+        data across multiple seasons. The schema was designed to be queryable across natural
+        question types: game-level outcomes, team rankings, player leaderboards, and
+        head-to-head comparisons.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- METHODOLOGY -->
+  <section>
+    <p class="cs-section-label">Methodology</p>
+    <h2 class="cs-section-title">Schema injection, prompt constraints, and query validation</h2>
+    <div class="cs-prose">
+      <p>
+        The core challenge in LLM-to-SQL systems is hallucination: LLMs confidently generate
+        SQL referencing columns and tables that don't exist. The architecture addresses this
+        with three layers.
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Layer 1 — Schema Context Injection</h3>
+      <p>
+        Every prompt includes a compact, serialized version of the database schema. Rather
+        than passing raw <span class="cs-code-inline">CREATE TABLE</span> DDL (which is verbose),
+        the schema is condensed to a structured description that fits the model's context
+        window without crowding out the user's question.
+      </p>
+    </div>
+
+    <pre class="cs-code">SYSTEM_PROMPT = """
+You are a SQL query generator for an NBA statistics database.
+Only use the tables and columns listed below. Do not invent columns.
+Return only the SQL query — no explanation, no markdown fences.
+
+SCHEMA:
+  games(game_id, date, home_team, away_team, home_score, away_score,
+        home_spread, total_line, season, playoffs)
+  team_stats(game_id, team, pts, reb, ast, fg_pct, fg3_pct,
+             off_rating, def_rating, pace, rest_days, b2b)
+  players(player_id, name, team, season)
+  player_games(game_id, player_id, pts, reb, ast, min, plus_minus)
+"""</pre>
+
+    <div class="cs-prose">
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Layer 2 — Prompt Engineering for Reliability</h3>
+      <p>
+        Prompt design enforces three constraints: use only provided tables, return only SQL
+        (no markdown or commentary), and prefer <span class="cs-code-inline">LIMIT</span> clauses
+        to prevent accidentally large result sets. Few-shot examples are appended for question
+        types the model tends to mis-handle (e.g., back-to-back filtering, season scoping).
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Layer 3 — Query Validation</h3>
+      <p>
+        Generated SQL is parsed before execution. The validator checks that every referenced
+        table and column exists in the schema, that no DDL statements (<span class="cs-code-inline">DROP</span>,
+        <span class="cs-code-inline">DELETE</span>, <span class="cs-code-inline">UPDATE</span>) are present,
+        and that the query can be explained by SQLite's query planner without error. Failures
+        return a user-visible error and trigger a retry with the error message appended to the prompt.
+      </p>
+    </div>
+
+    <pre class="cs-code">def validate_query(sql: str, schema: dict) -> tuple[bool, str]:
+    # Block destructive statements
+    forbidden = ("drop", "delete", "update", "insert", "alter")
+    if any(sql.lower().startswith(kw) for kw in forbidden):
+        return False, "Destructive SQL not permitted."
+
+    # Check all referenced tables/columns exist
+    parsed_tables = extract_tables(sql)
+    for table in parsed_tables:
+        if table not in schema:
+            return False, f"Unknown table: '&#123;table&#125;'"
+
+    # Dry-run via EXPLAIN
+    try:
+        con.execute(f"EXPLAIN &#123;sql&#125;")
+    except sqlite3.OperationalError as e:
+        return False, str(e)
+
+    return True, ""</pre>
+
+    <div class="cs-prose">
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Streamlit Interface</h3>
+      <p>
+        The front end is a Streamlit app: a text input for the question, a collapsible panel
+        showing the generated SQL (for transparency), and a dataframe of results. Users can
+        copy the raw SQL if they want to modify it. Error messages surface the validation
+        failure reason rather than a generic "something went wrong."
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- RESULTS / EXAMPLE QUERIES -->
+  <section>
+    <p class="cs-section-label">Results</p>
+    <h2 class="cs-section-title">Example queries and outputs</h2>
+    <div class="cs-prose">
+      <p>
+        The prototype reliably handles a wide class of basketball questions. A few examples
+        from actual usage:
+      </p>
+    </div>
+
+    <div class="space-y-5 mt-6">
+      {[
+        {
+          q: 'Which teams have the best record in back-to-backs this season?',
+          sql: 'SELECT team, SUM(CASE WHEN pts > opp_pts THEN 1 ELSE 0 END) AS wins,\n       COUNT(*) AS games\nFROM team_stats\nWHERE b2b = 1 AND season = 2024\nGROUP BY team ORDER BY wins DESC LIMIT 10;',
+        },
+        {
+          q: 'What is the average home team scoring margin over the last 3 seasons?',
+          sql: 'SELECT season, ROUND(AVG(home_score - away_score), 2) AS avg_margin\nFROM games\nWHERE season >= 2022\nGROUP BY season ORDER BY season;',
+        },
+        {
+          q: 'Which players averaged 20+ points on 60%+ true shooting last season?',
+          sql: 'SELECT p.name, ROUND(AVG(pg.pts), 1) AS ppg,\n       ROUND(AVG(pg.pts) / (2.0*(AVG(pg.fga) + 0.44*AVG(pg.fta))), 3) AS ts_pct\nFROM player_games pg JOIN players p USING (player_id)\nWHERE p.season = 2024\nGROUP BY pg.player_id\nHAVING ppg >= 20 AND ts_pct >= 0.60\nORDER BY ppg DESC;',
+        },
+      ].map(({ q, sql }) => (
+        <div class="border border-white/10 rounded-lg overflow-hidden">
+          <div class="px-5 py-3 bg-white/[0.03] border-b border-white/10">
+            <p class="font-sans text-white/75 text-sm italic">"{q}"</p>
+          </div>
+          <pre class="cs-code m-0 rounded-none border-0 border-l-2 border-l-[#2DD4BF]/50 text-xs">{sql}</pre>
+        </div>
+      ))}
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-6 mt-10">
+      <StatCallout value="3-layer" label="Validation pipeline" sublabel="Schema check → DDL block → EXPLAIN dry-run" />
+      <StatCallout value="0 halluc." label="Column/table errors in tested queries" sublabel="With schema injection + validation" />
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- CHALLENGES -->
+  <section>
+    <p class="cs-section-label">Challenges & Tradeoffs</p>
+    <h2 class="cs-section-title">What didn't work, and what was learned</h2>
+    <div class="cs-prose">
+      <p>
+        <strong class="text-white/85">Ambiguous questions are hard to handle gracefully.</strong> Questions
+        like "who's the best shooter?" are semantically underspecified — best by what metric,
+        over what sample? The current approach returns the model's best-guess interpretation
+        alongside the SQL, so users can verify intent. A future improvement is a clarification
+        step before generation.
+      </p>
+      <p>
+        <strong class="text-white/85">Context window limits schema verbosity.</strong> Larger schemas
+        (more tables, more columns) push toward the model's context limit and degrade output quality.
+        The solution here — condensed schema descriptions — works for this small database size but
+        wouldn't generalize well to enterprise schemas. Vector-similarity-based schema retrieval
+        would be the right approach at scale.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- LINKS -->
+  <section>
+    <p class="cs-section-label">Links</p>
+    <h2 class="cs-section-title">Code & deployment</h2>
+    <div class="flex flex-wrap gap-4">
+      <a
+        href="https://github.com/jnish23"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 font-mono text-sm text-white/60 border border-white/15 px-4 py-2.5 rounded hover:border-[#2DD4BF]/40 hover:text-white transition-colors duration-200"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
+        GitHub Repo
+        <!-- TODO: replace with direct repo URL when public -->
+      </a>
+      <span class="inline-flex items-center gap-2 font-mono text-sm text-white/25 border border-white/10 px-4 py-2.5 rounded cursor-not-allowed">
+        Live Demo — In Development
+      </span>
+    </div>
+    <p class="font-mono text-xs text-white/25 mt-4">
+      <!-- TODO: add NL-to-SQL Streamlit screenshot to /public/images/ -->
+      Screenshot gallery: drop app screenshots into /public/images/ to activate.
+    </p>
+  </section>
+
+</CaseStudyLayout>

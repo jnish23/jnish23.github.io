@@ -1,0 +1,22 @@
+---
+interface Props {
+  value: string;
+  label: string;
+  sublabel?: string;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { value, label, sublabel, size = 'md' } = Astro.props;
+
+const valueSize = {
+  sm: 'text-xl',
+  md: 'text-3xl',
+  lg: 'text-4xl',
+}[size];
+---
+
+<div class="border-l-2 border-[#2DD4BF] pl-5 py-1">
+  <p class={`font-mono text-[#2DD4BF] font-medium leading-none mb-1 ${valueSize}`}>{value}</p>
+  <p class="font-sans text-white/70 text-sm">{label}</p>
+  {sublabel && <p class="font-mono text-white/35 text-xs mt-0.5">{sublabel}</p>}
+</div>

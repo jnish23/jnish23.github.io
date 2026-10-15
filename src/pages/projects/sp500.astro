@@ -1,0 +1,215 @@
+---
+import CaseStudyLayout from '@components/CaseStudyLayout.astro';
+import StatCallout from '@components/StatCallout.astro';
+---
+
+<CaseStudyLayout
+  title="SP500 vs. Stock Picker"
+  subtitle="Backtesting framework that quantifies the long-term cost of active stock picking versus passive S&P 500 index investing — with Monte Carlo simulation to surface the full distribution of outcomes."
+  category="Machine Learning · Financial Analytics"
+  tools={['Python', 'pandas', 'yfinance', 'numpy', 'Plotly', 'Monte Carlo']}
+  duration="2024 – ongoing"
+  ogDescription="Data-driven comparison of active stock picking vs. S&P 500 passive investing using backtesting and Monte Carlo simulation."
+>
+
+  <!-- OBJECTIVE -->
+  <section>
+    <p class="cs-section-label">Objective</p>
+    <h2 class="cs-section-title">What would have happened if you'd just bought the index?</h2>
+    <div class="cs-prose">
+      <p>
+        Most retail investors underperform the S&P 500 over any 10-year period, due to various 
+        transaction costs, timing mistakes, concentration risk, and anchoring to individual positions. 
+        This tool makes that cost concrete. Given any portfolio of individual stocks and a date range, 
+        it computes exactly what you'd have had if you'd put the same dollars into SPY instead.
+        Many tools tell you returns based on a single time investment in a stock at a prior date. 
+        This lets you put in your whole stock purchase history and recalculates performance based on
+        all those buys as if you would have bought S&P 500 instead. 
+      </p>
+      <p>
+        The goal is a data-driven financial literacy tool and answers
+         the question: "what was the opportunity cost of your stock picks?"
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- DATA SOURCES -->
+  <section>
+    <p class="cs-section-label">Data Sources</p>
+    <h2 class="cs-section-title">Historical price data via yfinance</h2>
+    <div class="cs-prose">
+      <p>
+        Price history for individual stocks and the S&P 500 index (via the SPY ETF as
+        benchmark) is fetched from Yahoo Finance using the <span class="cs-code-inline">yfinance</span> Python
+        library. Adjusted close prices are used throughout — this accounts for dividends
+        and stock splits, which significantly affect long-run return calculations.
+      </p>
+      <p>
+        The tool supports arbitrary tickers and date ranges. Data is cached locally after
+        the first fetch to avoid re-downloading on repeated runs.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- METHODOLOGY -->
+  <section>
+    <p class="cs-section-label">Methodology</p>
+    <h2 class="cs-section-title">Backtesting framework and Monte Carlo outcome simulation</h2>
+    <div class="cs-prose">
+      <p>
+        The analysis has two components: a deterministic backtest for any specific portfolio,
+        and a Monte Carlo simulation for forward-looking scenario analysis.
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Backtesting Engine</h3>
+      <p>
+        For a given portfolio (tickers, weights, start date), the backtest computes the
+        daily portfolio value alongside the SPY benchmark, assuming the same initial
+        capital and no rebalancing. Key metrics — CAGR, Sharpe ratio, max drawdown, and
+        time underwater — are computed for both portfolios.
+      </p>
+    </div>
+
+    <pre class="cs-code">import yfinance as yf
+import pandas as pd
+
+def backtest(tickers: list[str], weights: list[float],
+             start: str, end: str, capital: float = 10_000):
+    prices = yf.download(tickers + ["SPY"], start=start, end=end)["Adj Close"]
+    prices = prices.dropna()
+
+    # Portfolio daily returns (weighted)
+    port_returns = (prices[tickers] * weights).sum(axis=1) / prices[tickers].shift(1).mul(weights).sum(axis=1) - 1
+
+    # Benchmark: SPY
+    spy_returns = prices["SPY"].pct_change()
+
+    port_value = (1 + port_returns).cumprod() * capital
+    spy_value  = (1 + spy_returns).cumprod() * capital
+
+    return port_value, spy_value</pre>
+
+    <div class="cs-prose">
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Monte Carlo Simulation</h3>
+      <p>
+        Forward-looking simulation draws from the empirical return distribution of each
+        portfolio to generate 10,000 outcome paths over a user-specified horizon (e.g., 10
+        or 20 years). The output is a distribution of terminal wealth values — this surfaces
+        the range of outcomes, not just the expected value, which is the key insight most
+        point-estimate comparisons miss.
+      </p>
+    </div>
+
+    <pre class="cs-code">import numpy as np
+
+def monte_carlo(daily_returns: pd.Series, n_years: int = 10,
+                n_sims: int = 10_000, capital: float = 10_000):
+    trading_days = n_years * 252
+    mu    = daily_returns.mean()
+    sigma = daily_returns.std()
+
+    # Geometric Brownian Motion paths
+    rand  = np.random.normal(mu, sigma, (trading_days, n_sims))
+    paths = capital * np.exp(np.cumsum(rand, axis=0))
+
+    return paths  # shape: (trading_days, n_sims)
+
+# Key output percentiles
+p10, p50, p90 = np.percentile(paths[-1], [10, 50, 90])</pre>
+
+    <div class="cs-prose">
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Performance Metrics</h3>
+      <p>
+        The summary comparison computes: Compound Annual Growth Rate (CAGR), Sharpe ratio
+        (using 3-month T-bill rate as risk-free benchmark), maximum drawdown, and Sortino
+        ratio. Both the portfolio and SPY are computed on identical date ranges and capital.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- RESULTS -->
+  <section>
+    <p class="cs-section-label">Impact & Results</p>
+    <h2 class="cs-section-title">Results pending — project in progress</h2>
+    <div class="cs-prose">
+      <p>
+        <!-- TODO: populate with actual findings once analysis is complete -->
+        [PLACEHOLDER] Replace this section with actual backtest results and Monte Carlo
+        output once the analysis is finalized. Include: CAGR comparison table, Sharpe
+        ratio comparison, example Monte Carlo chart (Plotly export or screenshot), and
+        1–2 representative stock picker portfolios as illustrative cases.
+      </p>
+      <p>
+        The framework is built and tested. Final results and Plotly visualizations
+        will be added when the project reaches its analysis phase.
+      </p>
+    </div>
+
+    <div class="grid sm:grid-cols-3 gap-6 mt-8">
+      <StatCallout value="[TBD]" label="Portfolio CAGR" sublabel="<!-- TODO: populate -->" size="sm" />
+      <StatCallout value="[TBD]" label="SPY CAGR (same period)" sublabel="<!-- TODO: populate -->" size="sm" />
+      <StatCallout value="10,000" label="Monte Carlo simulation paths" sublabel="10- and 20-year horizons" size="sm" />
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- CHALLENGES -->
+  <section>
+    <p class="cs-section-label">Challenges & Tradeoffs</p>
+    <h2 class="cs-section-title">Modeling decisions and limitations</h2>
+    <div class="cs-prose">
+      <p>
+        <strong class="text-white/85">Survivorship bias is real and hard to eliminate.</strong> The
+        S&P 500 composition changes over time — backfilling from the current index membership
+        overstates historical performance because it excludes companies that were removed
+        (often for poor performance). The tool uses the SPY ETF as a proxy to partially
+        mitigate this, but the active portfolios compared against it may still benefit from
+        survivorship if tested on stocks that happened to survive.
+      </p>
+      <p>
+        <strong class="text-white/85">Monte Carlo assumes i.i.d. returns.</strong> Geometric
+        Brownian Motion treats daily returns as independently drawn from a stationary
+        distribution. Real markets exhibit volatility clustering (GARCH effects) and fat
+        tails. The simulation understates the probability of extreme outcomes compared to
+        more sophisticated models like GARCH or regime-switching models.
+      </p>
+      <p>
+        <strong class="text-white/85">Transaction costs are simplified.</strong> The current
+        backtest assumes no trading friction beyond a configurable flat cost per trade.
+        Bid-ask spreads, tax drag, and behavioral costs (premature selling) are not modeled —
+        which means the real advantage of passive investing is likely understated.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- LINKS -->
+  <section>
+    <p class="cs-section-label">Links</p>
+    <h2 class="cs-section-title">Code</h2>
+    <div class="flex flex-wrap gap-4">
+      <a
+        href="https://github.com/jnish23"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 font-mono text-sm text-white/60 border border-white/15 px-4 py-2.5 rounded hover:border-[#2DD4BF]/40 hover:text-white transition-colors duration-200"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
+        GitHub Repo
+        <!-- TODO: replace with direct repo URL when public -->
+      </a>
+      <span class="inline-flex items-center gap-2 font-mono text-sm text-white/25 border border-white/10 px-4 py-2.5 rounded cursor-not-allowed">
+        Analysis In Progress
+      </span>
+    </div>
+  </section>
+
+</CaseStudyLayout>

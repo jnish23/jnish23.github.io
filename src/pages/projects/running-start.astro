@@ -1,0 +1,157 @@
+---
+import CaseStudyLayout from '@components/CaseStudyLayout.astro';
+import StatCallout from '@components/StatCallout.astro';
+---
+
+<CaseStudyLayout
+  title="Dual-Enrollment Impact Analysis"
+  subtitle="A causal inference study of a state dual-enrollment program using linked K-12 and postsecondary administrative data, built with propensity score matching and Bayesian hierarchical models."
+  category="Causal Inference"
+  tools={['R', 'brms', 'Stan', 'dplyr', 'ggplot2', 'MatchIt']}
+  duration="Professional work · 2023 – 2024"
+  ogDescription="Bayesian causal inference on education administrative data: propensity score matching and hierarchical models to address selection bias."
+>
+
+  <!-- OBJECTIVE -->
+  <section>
+    <p class="cs-section-label">Objective</p>
+    <h2 class="cs-section-title">Estimating a program's effect when participation isn't random</h2>
+    <div class="cs-prose">
+      <p>
+        Dual-enrollment programs let high school students take college courses before they
+        graduate. Students who choose to participate tend to differ from those who don't, so
+        simply comparing outcomes would mix up the program's effect with who chose to enroll.
+      </p>
+      <p>
+        The goal was to estimate the program's effect on postsecondary outcomes credibly,
+        accounting for selection bias and for differences between student groups.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- DATA SOURCES -->
+  <section>
+    <p class="cs-section-label">Data Sources</p>
+    <h2 class="cs-section-title">Linked administrative records</h2>
+    <div class="cs-prose">
+      <p>
+        The analysis used state education administrative data linked to national
+        postsecondary enrollment records, which makes it possible to follow students after they
+        leave the K-12 system. The data was accessed under a data-sharing agreement, so this
+        write-up covers the approach rather than the data or results.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- METHODOLOGY -->
+  <section>
+    <p class="cs-section-label">Methodology</p>
+    <h2 class="cs-section-title">Propensity score matching + Bayesian hierarchical logistic regression</h2>
+    <div class="cs-prose">
+      <p>
+        Two complementary methods address the selection problem.
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Step 1 — Propensity score matching</h3>
+      <p>
+        Estimate each student's probability of participating from pre-treatment covariates,
+        then match participants to similar non-participants to build a balanced comparison
+        group. Covariate balance is checked with standardized mean differences before and
+        after matching.
+      </p>
+    </div>
+
+    <pre class="cs-code"># Propensity score matching with MatchIt
+library(MatchIt)
+
+match_out <- matchit(
+  treated ~ prior_achievement + demographics + school + cohort,
+  data     = students,
+  method   = "nearest",
+  distance = "logit",
+  caliper  = 0.05
+)</pre>
+
+    <div class="cs-prose">
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Step 2 — Bayesian hierarchical logistic regression</h3>
+      <p>
+        On the matched sample, a Bayesian hierarchical logistic regression (brms / Stan)
+        estimates the effect on binary postsecondary outcomes. Schools enter as random
+        effects because students in the same school are not independent, and interaction
+        terms test whether effects differ across student groups. The Bayesian approach gives
+        full posterior distributions rather than a single point estimate, which makes
+        uncertainty explicit.
+      </p>
+    </div>
+
+    <pre class="cs-code"># Hierarchical logistic model with brms
+library(brms)
+
+model <- brm(
+  outcome ~ treated * group + covariates + (1 | school),
+  data   = matched_data,
+  family = bernoulli(link = "logit"),
+  prior  = c(
+    prior(normal(0, 1.5), class = "b"),
+    prior(exponential(1), class = "sd")
+  ),
+  chains = 4, cores = 4
+)</pre>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- SKILLS -->
+  <section>
+    <h2 class="cs-section-title">Causal reasoning on real administrative data</h2>
+    <div class="grid sm:grid-cols-3 gap-6">
+      <StatCallout value="Causal" label="Selection-bias-aware design" sublabel="Propensity score matching" size="sm" />
+      <StatCallout value="Bayesian" label="Hierarchical modeling" sublabel="brms / Stan" size="sm" />
+      <StatCallout value="Linked" label="Multi-system data" sublabel="K-12 + postsecondary" size="sm" />
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- CHALLENGES -->
+  <section>
+    <p class="cs-section-label">Challenges & Tradeoffs</p>
+    <h2 class="cs-section-title">Limits of the approach</h2>
+    <div class="cs-prose">
+      <p>
+        <strong class="text-white/85">Matching trades sample size for validity.</strong> Matching
+        with a caliper drops participants who have no sufficiently similar comparison, which
+        makes the estimate more internally valid but less representative of all participants.
+      </p>
+      <p>
+        <strong class="text-white/85">Unobserved confounders remain a limitation.</strong> Matching
+        only controls for measured covariates. Students who opt in may differ in unmeasured
+        ways such as motivation or family support, so sensitivity analysis matters when
+        interpreting any result.
+      </p>
+      <p>
+        <strong class="text-white/85">Bayesian computation is slow.</strong> Hierarchical models
+        with interactions are expensive to sample, which affects how often an analysis like
+        this can be refreshed.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- LINKS -->
+  <section>
+    <p class="cs-section-label">Links</p>
+    <h2 class="cs-section-title">Publication & code</h2>
+    <div class="flex flex-wrap gap-4">
+      <span class="inline-flex items-center gap-2 font-mono text-sm text-white/25 border border-white/10 px-4 py-2.5 rounded cursor-not-allowed">
+        Not public — data-sharing agreement
+      </span>
+    </div>
+  </section>
+
+</CaseStudyLayout>

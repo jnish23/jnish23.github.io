@@ -1,0 +1,115 @@
+---
+import CaseStudyLayout from '@components/CaseStudyLayout.astro';
+import StatCallout from '@components/StatCallout.astro';
+import LinkButton from '@components/LinkButton.astro';
+---
+
+<CaseStudyLayout
+  title="Japanese SRS Translator"
+  subtitle="Context-aware English-to-Japanese translation that feeds straight into spaced-repetition flashcards — a personal tool I built and use."
+  category="AI Engineering"
+  tools={['TypeScript', 'React 19', 'Vite', 'PWA', 'LLM APIs']}
+  ogDescription="A browser-based PWA that translates English into natural Japanese with LLMs and turns the results into SM-2 flashcards."
+>
+
+  <!-- OBJECTIVE -->
+  <section>
+    <p class="cs-section-label">Objective</p>
+    <h2 class="cs-section-title">Translation with context, and a way to remember it</h2>
+    <div class="cs-prose">
+      <p>
+        Translation apps give you <em>a</em> translation — often overly literal, because
+        context matters — and no way to practice, so you forget and look it up again. I wanted
+        context to be part of the question, and the answer to go straight into a study system.
+        I use it for phrases I actually need, like talking to my son.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- DATA SOURCES -->
+  <section>
+    <p class="cs-section-label">Data Sources</p>
+    <h2 class="cs-section-title">User phrases and a provider of your choice</h2>
+    <div class="cs-prose">
+      <p>
+        There is no backend and no account. Phrases are entered by the user and sent only to
+        the LLM provider whose API key they paste in. Cards live in the browser's local storage.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- METHODOLOGY -->
+  <section>
+    <p class="cs-section-label">Methodology</p>
+    <h2 class="cs-section-title">Prompting, validation, and SM-2 from the spec</h2>
+    <div class="cs-prose">
+      <ul class="list-disc pl-5 space-y-2">
+        <li><strong class="text-white/85">Context-aware prompting:</strong> each query takes the phrase plus a context line (who, where, how formal; default "parental casual"). It returns three options that differ in register and nuance, each with an explanation, as validated JSON.</li>
+        <li><strong class="text-white/85">Multi-provider fallback:</strong> DeepSeek, Anthropic or Google Gemini keys are detected from the key prefix. If the primary provider is down, rate-limited or out of credit, the request retries on a backup key.</li>
+        <li><strong class="text-white/85">SM-2 from scratch:</strong> implemented from its spec — 1.3 ease floor, 1- then 6-day first intervals, Again/Good mapped to quality. The review queue is recomputed each time the screen opens, so there is no stale state.</li>
+        <li><strong class="text-white/85">Study features:</strong> production and recognition cards, toggleable furigana, Unicode-normalized search across English, kanji, reading and romaji, and Anki TSV export.</li>
+        <li><strong class="text-white/85">Installable and offline:</strong> a PWA, so reviews work offline on Android straight from local storage.</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- TOOLS -->
+  <section>
+    <p class="cs-section-label">Tools Used</p>
+    <h2 class="cs-section-title">Stack</h2>
+    <div class="flex flex-wrap gap-2">
+      {['TypeScript', 'React 19', 'Vite', 'vite-plugin-pwa', 'Workbox', 'Anthropic SDK', 'Google GenAI SDK', 'DeepSeek API', 'Vercel'].map((t) => (
+        <span class="font-mono text-xs text-white/60 bg-white/5 border border-white/10 px-3 py-1.5 rounded">{t}</span>
+      ))}
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- RESULTS -->
+  <section>
+    <p class="cs-section-label">Impact & Results</p>
+    <h2 class="cs-section-title">Shipped, deployed, and in daily use</h2>
+    <div class="grid sm:grid-cols-3 gap-6">
+      <StatCallout value="3" label="LLM providers supported" sublabel="With automatic fallback" size="lg" />
+      <StatCallout value="0" label="Backend servers" sublabel="Runs entirely in the browser" size="lg" />
+      <StatCallout value="PWA" label="Installable, offline reviews" size="lg" />
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- CHALLENGES -->
+  <section>
+    <p class="cs-section-label">Challenges & Tradeoffs</p>
+    <h2 class="cs-section-title">What's next</h2>
+    <div class="cs-prose">
+      <ul class="list-disc pl-5 space-y-2">
+        <li>Unit tests for the scheduler and response parser.</li>
+        <li>A small eval set of phrase + context pairs to compare models on register accuracy and naturalness.</li>
+        <li>Review analytics: retention rate, ease-factor drift, and cards that keep failing.</li>
+        <li>Optional sync so the deck survives a cleared browser; native mobile apps.</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- LINKS -->
+  <section>
+    <p class="cs-section-label">Links</p>
+    <h2 class="cs-section-title">Code & live app</h2>
+    <div class="flex flex-wrap gap-4">
+      <LinkButton href="https://github.com/jnish23/translation-flashcards-app" label="GitHub Repo" />
+      <LinkButton variant="primary" href="https://translation-flashcards-app-i9kj.vercel.app" label="Open App" />
+    </div>
+    <!-- TODO: add app screenshots from /public/images/ (translate + review screens) -->
+  </section>
+
+</CaseStudyLayout>

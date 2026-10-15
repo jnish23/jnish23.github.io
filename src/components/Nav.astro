@@ -1,0 +1,106 @@
+---
+const navLinks = [
+  { href: '/projects', label: 'Projects' },
+  { href: '/deployments', label: 'Deployments' },
+  { href: '/skills', label: 'Skills' },
+  { href: '/contact', label: 'Contact' },
+];
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+function isActive(href: string): boolean {
+  if (href === '/') return currentPath === '/';
+  return currentPath === href || currentPath.startsWith(href + '/');
+}
+---
+
+<nav class="w-full border-b border-white/10 bg-[#0D1117]/90 backdrop-blur-sm sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+
+    <!-- Logo / Name -->
+    <a
+      href="/"
+      class="font-display text-lg text-white hover:text-[#2DD4BF] transition-colors duration-200 tracking-tight"
+    >
+      Jordan Nishimura
+    </a>
+
+    <!-- Desktop Links -->
+    <ul class="hidden md:flex items-center gap-8" role="list">
+      {navLinks.map(({ href, label }) => (
+        <li>
+          <a
+            href={href}
+            class:list={[
+              'font-sans text-sm font-medium tracking-wide transition-colors duration-200',
+              isActive(href)
+                ? 'text-[#2DD4BF] underline underline-offset-4 decoration-[#2DD4BF]'
+                : 'text-white/70 hover:text-white',
+            ]}
+            aria-current={isActive(href) ? 'page' : undefined}
+          >
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Mobile Hamburger -->
+    <button
+      id="nav-toggle"
+      class="md:hidden flex flex-col gap-1.5 p-2 text-white/70 hover:text-white focus:outline-none"
+      aria-label="Toggle navigation"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span class="block w-6 h-px bg-current transition-transform duration-200" id="bar1"></span>
+      <span class="block w-6 h-px bg-current transition-opacity duration-200" id="bar2"></span>
+      <span class="block w-6 h-px bg-current transition-transform duration-200" id="bar3"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden border-t border-white/10"
+    role="menu"
+  >
+    <ul class="flex flex-col px-6 py-4 gap-4" role="list">
+      {navLinks.map(({ href, label }) => (
+        <li role="none">
+          <a
+            href={href}
+            class:list={[
+              'block font-sans text-sm font-medium tracking-wide py-1 transition-colors duration-200',
+              isActive(href)
+                ? 'text-[#2DD4BF]'
+                : 'text-white/70 hover:text-white',
+            ]}
+            aria-current={isActive(href) ? 'page' : undefined}
+            role="menuitem"
+          >
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</nav>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const menu = document.getElementById('mobile-menu');
+  const bar1 = document.getElementById('bar1');
+  const bar2 = document.getElementById('bar2');
+  const bar3 = document.getElementById('bar3');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = menu?.classList.toggle('hidden') === false;
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    bar1?.classList.toggle('rotate-45', isOpen);
+    bar1?.classList.toggle('translate-y-2', isOpen);
+    bar2?.classList.toggle('opacity-0', isOpen);
+    bar3?.classList.toggle('-rotate-45', isOpen);
+    bar3?.classList.toggle('-translate-y-2', isOpen);
+  });
+</script>

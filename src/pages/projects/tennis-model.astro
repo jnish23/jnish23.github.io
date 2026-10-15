@@ -1,0 +1,191 @@
+---
+import CaseStudyLayout from '@components/CaseStudyLayout.astro';
+import StatCallout from '@components/StatCallout.astro';
+import LinkButton from '@components/LinkButton.astro';
+---
+
+<CaseStudyLayout
+  title="Tennis Prediction System"
+  subtitle="Win-probability, total-games and spread models for ATP, Challenger and WTA matches since 2000 — with walk-forward backtesting, Monte Carlo bracket simulation, a nightly pipeline and a live dashboard."
+  category="Machine Learning"
+  tools={['Python', 'LightGBM', 'pandas', 'SQLite', 'Streamlit', 'GitHub Actions']}
+  duration="2000–present data · updated nightly"
+  ogDescription="Calibrated tennis match prediction: 66.4% accuracy over 127,000 ATP matches, leakage-proof features, and a live Streamlit dashboard."
+>
+
+  <!-- OBJECTIVE -->
+  <section>
+    <p class="cs-section-label">Objective</p>
+    <h2 class="cs-section-title">A calibrated probability source for tennis</h2>
+    <div class="cs-prose">
+      <p>
+        Predict match winners, total games and game margin for ATP main tour and Challenger
+        matches and WTA main tour matches, and simulate whole tournaments from those
+        probabilities. The goal is trustworthy probabilities, validated honestly against
+        the betting market.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- DATA SOURCES -->
+  <section>
+    <p class="cs-section-label">Data Sources</p>
+    <h2 class="cs-section-title">200,000+ matches plus a custom odds scraper</h2>
+    <div class="cs-prose">
+      <p>
+        Match data comes from TennisMyLife; historical odds come from tennis-data.co.uk and
+        checkbestodds.com (which covers Challengers). I wrote my own scraper for
+        tennisexplorer.com that captures live odds four times a day and keeps every
+        snapshot, so the last price before play serves as a closing-line proxy.
+      </p>
+    </div>
+    <div class="grid sm:grid-cols-3 gap-6 mt-8">
+      <StatCallout value="200,470" label="Matches, 2000–2026" size="md" />
+      <StatCallout value="64,642" label="Matches priced (12 books)" size="md" />
+      <StatCallout value="36,888" label="Challenger/main odds joined" size="md" />
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- METHODOLOGY -->
+  <section>
+    <p class="cs-section-label">Methodology</p>
+    <h2 class="cs-section-title">Leakage-proof features, calibrated LightGBM, Monte Carlo simulation</h2>
+    <div class="cs-prose">
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-2 mb-2">Leakage control by construction</h3>
+      <p>
+        The feature engine walks matches in order and emits each row <em>before</em> folding
+        in that match's result. A prefix-invariance test backs this up: features built over
+        the first N matches must equal the first N rows of features built over 2N matches.
+        A single allow-list defines every model input.
+      </p>
+    </div>
+
+    <pre class="cs-code"># Prefix invariance: if anything peeked forward, these would diverge
+feats_n  = build_features(matches[:N])
+feats_2n = build_features(matches[:2*N])
+assert feats_n.equals(feats_2n.iloc[:N])</pre>
+
+    <div class="cs-prose">
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Features and models</h3>
+      <p>
+        126 features: overall and per-surface Elo (with K decay, surface blending and layoff
+        decay), EWMA and rolling form, serve and return rates, head-to-head, rest and
+        fatigue, rank, age, height, handedness, and pairwise differences. One LightGBM fit
+        spans both tours. The winner model is isotonically calibrated on an earlier held-out
+        slice, and predictions are symmetrised so P(A beats B) + P(B beats A) is exactly 1.
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Tournament simulation</h3>
+      <p>
+        Brackets are resolved with thousands of Monte Carlo playthroughs rather than one
+        deterministic chain, which would collapse uncertainty into a single fictional bracket
+        by round three.
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Experiments measured, not assumed</h3>
+      <p>
+        Feature additions are tested with a paired bootstrap on an untouched holdout and then
+        confirmed on the full walk-forward before being kept.
+      </p>
+
+      <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Pipeline</h3>
+      <p>
+        A nightly GitHub Actions job ingests new matches, rebuilds features incrementally and
+        publishes a data bundle through a GitHub Release, so the public dashboard stays current
+        without any machine of mine being awake. Table reloads are transactional and refuse a
+        source that shrinks by more than 10%.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- TOOLS -->
+  <section>
+    <p class="cs-section-label">Tools Used</p>
+    <h2 class="cs-section-title">Stack</h2>
+    <div class="flex flex-wrap gap-2">
+      {['Python', 'pandas', 'LightGBM', 'SQLite', 'Elo ratings', 'Monte Carlo', 'Streamlit', 'GitHub Actions', 'pytest'].map((t) => (
+        <span class="font-mono text-xs text-white/60 bg-white/5 border border-white/10 px-3 py-1.5 rounded">{t}</span>
+      ))}
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- RESULTS -->
+  <section>
+    <p class="cs-section-label">Impact & Results</p>
+    <h2 class="cs-section-title">Well-calibrated, and honest about the market</h2>
+    <div class="cs-prose">
+      <p>
+        Walk-forward over 2010–2026 on 127,132 ATP matches, each season predicted by a model
+        trained only on earlier matches.
+      </p>
+    </div>
+
+    <div class="grid sm:grid-cols-3 gap-6 mt-8">
+      <StatCallout value="0.6047" label="Log loss" sublabel="Elo-only baseline: 0.6263" size="lg" />
+      <StatCallout value="66.4%" label="Accuracy" sublabel="74.5% at Grand Slams" size="lg" />
+      <StatCallout value="5.16" label="Totals MAE (games)" sublabel="Spread MAE: 4.09 games" size="lg" />
+    </div>
+
+    <div class="cs-prose mt-8">
+      <p>
+        <strong class="text-white/85">The model does not beat the closing line.</strong> On
+        38,422 matches with Pinnacle prices, the close's log loss is 0.5730 against the
+        model's 0.5859, and flat-staking every positive-EV bet loses money at every threshold
+        tested (−3% to −4%). That's the expected result in a sharp market, and the honest
+        headline: this is a calibrated probability source, not a betting edge.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- CHALLENGES -->
+  <section>
+    <p class="cs-section-label">Challenges & Tradeoffs</p>
+    <h2 class="cs-section-title">What didn't work</h2>
+    <div class="cs-prose">
+      <p>
+        <strong class="text-white/85">A holdout can flatter recency features.</strong> A
+        short-memory Elo cleared a 2023+ holdout (P(better) = 0.992) and then reversed under
+        walk-forward (P = 0.054, 6 of 17 seasons improved). Walk-forward refits every season,
+        so the all-time Elo is already current. I reverted it.
+      </p>
+      <p>
+        <strong class="text-white/85">A better Elo bought nothing.</strong> Fixing surface
+        ratings improved the Elo-only baseline exactly as predicted (0.6306 → 0.6268), but the
+        full model didn't move (0.60519 → 0.60525) — LightGBM had already learned to discount
+        thin surface ratings. I kept it for display accuracy and don't claim it as a gain.
+      </p>
+      <p>
+        <strong class="text-white/85">Messy data needed explicit rules.</strong> Retirements are
+        labeled rather than dropped (and excluded from totals labels), and event keys had to be
+        rebuilt because the source stamps dates differently across file generations.
+      </p>
+    </div>
+  </section>
+
+  <hr class="cs-divider" />
+
+  <!-- LINKS -->
+  <section>
+    <p class="cs-section-label">Links</p>
+    <h2 class="cs-section-title">Code & live dashboard</h2>
+    <div class="flex flex-wrap gap-4">
+      <LinkButton href="https://github.com/jnish23/Tennis-Predictor" label="GitHub Repo" />
+      <LinkButton variant="primary" href="https://tennis-predictor-dashboard.streamlit.app/" label="Open Live Dashboard" />
+    </div>
+    <p class="font-mono text-xs text-white/30 mt-4">
+      Six pages: match predictions, tournament simulation, backtest performance, calibration, Elo ratings, pipeline status.
+    </p>
+    <!-- TODO: add dashboard screenshots from /public/images/ (e.g. tennis-dashboard.png) -->
+  </section>
+
+</CaseStudyLayout>

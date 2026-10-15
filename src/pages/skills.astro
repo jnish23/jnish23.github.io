@@ -1,0 +1,206 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SkillBadge from '@components/SkillBadge.astro';
+
+const skillGroups = [
+  {
+    category: 'Languages',
+    skills: ['Python', 'R', 'SQL', 'Bash / Shell', 'Git'],
+  },
+  {
+    category: 'Data Manipulation',
+    skills: ['pandas', 'NumPy', 'dbt', 'ETL / ELT'],
+  },
+  {
+    category: 'Machine Learning',
+    skills: ['scikit-learn', 'XGBoost', 'LightGBM', 'FLAML', 'PyTorch', 'TensorFlow', 'SHAP', 'Probability Calibration'],
+  },
+  {
+    category: 'Statistical Modeling',
+    skills: ['statsmodels', 'PyMC', 'brms', 'Bayesian Inference', 'A/B Testing', 'Causal Inference', 'Time-Series Analysis', 'Monte Carlo Simulation'],
+  },
+  {
+    category: 'Data Visualization & BI',
+    skills: ['Tableau', 'Power BI', 'Plotly', 'Matplotlib', 'Seaborn'],
+  },
+  {
+    category: 'Databases & Engineering',
+    skills: ['SQL', 'dbt', 'Snowflake'],
+  },
+  {
+    category: 'Cloud & Deployment',
+    skills: ['Azure', 'Streamlit', 'GitHub Actions', 'Scheduled Pipelines'],
+  },
+  {
+    category: 'NLP / AI',
+    skills: ['NLP', 'Neural Networks', 'Deep Learning', 'LLM Integration'],
+  },
+];
+
+const experience = [
+  {
+    role: 'Data Scientist',
+    org: 'Community Center for Education Results (CCER)',
+    period: 'Apr 2022 – Jun 2026',
+    bullet: 'Sole data scientist for an education nonprofit: built models forecasting student dropout and postsecondary enrollment. Conducted quantitative education research to provide insights to partner districts. Automated a college-readiness eligibility system (SQL + dbt) for 8,000+ students a year, replacing a costly third-party service.',
+  },
+  {
+    role: 'Data Scientist Intern',
+    org: 'BehAIvior',
+    period: 'Jan – Apr 2022',
+    bullet: 'Built an outlier detector for time-series data to detect abnormal emotional states for people in recovery, alerting care providers when someone may benefit from a check-in.',
+  },
+  {
+    role: 'Mathematics Teacher',
+    org: 'Alliance College-Ready Middle Academy #8',
+    period: 'Jul 2015 – Dec 2019',
+    bullet: 'Designed data-driven lesson plans by analyzing student performance, misconceptions, and assessments.',
+  },
+];
+
+const education = [
+  {
+    degree: 'MS Analytics',
+    institution: 'Georgia Institute of Technology',
+    detail: 'Aug 2025 – Present · part-time, online',
+  },
+  {
+    degree: 'MEd',
+    institution: 'Claremont Graduate University',
+    detail: 'Master\'s in Education · 2014 – 2015',
+  },
+  {
+    degree: 'BS',
+    institution: 'University of Washington',
+    detail: 'Bachelor\'s in Mathematics · 2008 – 2012',
+  },
+];
+
+const certifications = [
+  { name: 'Data Science Nanodegree', issuer: 'Udacity' },
+];
+---
+
+<BaseLayout
+  title="Skills & Resume | Jordan Nishimura"
+  description="Skills, experience, and education for Jordan Nishimura — data scientist specializing in ML, causal inference, and analytics."
+>
+  <!-- Header with top-level CTA -->
+  <div class="max-w-6xl mx-auto px-6 pt-20 pb-12">
+    <div class="flex flex-wrap items-end justify-between gap-6">
+      <div>
+        <p class="font-mono text-[#2DD4BF] text-xs tracking-widest uppercase mb-4">Background</p>
+        <h1 class="font-display text-5xl md:text-6xl text-white leading-tight">Skills & Resume</h1>
+      </div>
+      <a
+        href="/Jordan-Nishimura-Resume.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 bg-[#2DD4BF] text-[#0D1117] font-sans font-semibold text-sm px-6 py-3 rounded hover:bg-[#2DD4BF]/90 transition-colors duration-200 shrink-0"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+        Download Resume
+      </a>
+    </div>
+  </div>
+
+  <!-- Two-column body -->
+  <div class="max-w-6xl mx-auto px-6 pb-24 grid md:grid-cols-[1fr_360px] gap-16 items-start">
+
+    <!-- LEFT — Skills grid -->
+    <div>
+      <p class="font-mono text-[#2DD4BF] text-xs tracking-widest uppercase mb-8">Technical Skills</p>
+      <div class="space-y-8">
+        {skillGroups.map(({ category, skills }) => (
+          <div>
+            <h2 class="font-mono text-xs text-white/35 tracking-widest uppercase mb-3">
+              {category}
+            </h2>
+            <div class="flex flex-wrap gap-2">
+              {skills.map((skill) => (
+                <SkillBadge skill={skill} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- RIGHT — Resume -->
+    <div class="space-y-10">
+
+      <!-- Experience -->
+      <div>
+        <p class="font-mono text-[#2DD4BF] text-xs tracking-widest uppercase mb-6">Experience</p>
+        <ol class="relative border-l border-white/10 space-y-8 ml-3">
+          {experience.map(({ role, org, period, bullet }) => (
+            <li class="pl-6 relative">
+              <span
+                class="absolute -left-[5px] top-[6px] w-2.5 h-2.5 rounded-full border-2 border-[#2DD4BF] bg-[#0D1117]"
+                aria-hidden="true"
+              ></span>
+              <p class="font-mono text-[#2DD4BF] text-xs tracking-wide mb-0.5">{period}</p>
+              <p class="font-sans font-semibold text-white text-sm">{role}</p>
+              <p class="font-mono text-xs text-white/35 mb-2">{org}</p>
+              <p class="font-sans text-white/50 text-xs leading-relaxed">{bullet}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <!-- Education -->
+      <div>
+        <p class="font-mono text-[#2DD4BF] text-xs tracking-widest uppercase mb-6">Education</p>
+        <ul class="space-y-4">
+          {education.map(({ degree, institution, detail }) => (
+            <li class="flex gap-4 items-start">
+              <span
+                class="mt-1.5 block w-1.5 h-1.5 rounded-full bg-[#2DD4BF]/40 shrink-0"
+                aria-hidden="true"
+              ></span>
+              <div>
+                <p class="font-sans font-medium text-white text-sm">{degree}</p>
+                <p class="font-mono text-xs text-white/35 mt-0.5">{institution}</p>
+                {detail && <p class="font-mono text-xs text-[#2DD4BF]/50 mt-0.5">{detail}</p>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Certifications -->
+      <div>
+        <p class="font-mono text-[#2DD4BF] text-xs tracking-widest uppercase mb-4">Certifications</p>
+        <ul class="space-y-3">
+          {certifications.map(({ name, issuer }) => (
+            <li class="flex gap-4 items-start">
+              <span
+                class="mt-1.5 block w-1.5 h-1.5 rounded-full bg-[#2DD4BF]/40 shrink-0"
+                aria-hidden="true"
+              ></span>
+              <div>
+                <p class="font-sans font-medium text-white text-sm">{name}</p>
+                <p class="font-mono text-xs text-white/35 mt-0.5">{issuer}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Bottom resume download (repeated per spec) -->
+      <a
+        href="/Jordan-Nishimura-Resume.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center justify-center gap-2 w-full border border-white/15 text-white/60 font-sans font-medium text-sm px-5 py-3 rounded hover:border-[#2DD4BF]/40 hover:text-white transition-colors duration-200"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+        Download Resume (PDF)
+      </a>
+    </div>
+  </div>
+</BaseLayout>
