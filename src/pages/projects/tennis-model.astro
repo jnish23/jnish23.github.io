@@ -139,8 +139,11 @@ assert feats_n.equals(feats_2n.iloc[:N])</pre>
         <strong class="text-white/85">The model does not beat the closing line.</strong> On
         38,422 matches with Pinnacle prices, the close's log loss is 0.5730 against the
         model's 0.5859, and flat-staking every positive-EV bet loses money at every threshold
-        tested (−3% to −4%). That's the expected result in a sharp market, and the honest
-        headline: this is a calibrated probability source, not a betting edge.
+        tested (−3% to −4%). That's the expected result in a sharp market, and is honest with the results. 
+        This is a calibrated probability source, not a betting edge. I am currently doing further 
+        work and exploration to determine specific tournaments/player types/matchups/market combinations 
+        that potentially can lead to an edge. More to come.
+
       </p>
     </div>
   </section>
@@ -162,7 +165,7 @@ assert feats_n.equals(feats_2n.iloc[:N])</pre>
         <strong class="text-white/85">A better Elo bought nothing.</strong> Fixing surface
         ratings improved the Elo-only baseline exactly as predicted (0.6306 → 0.6268), but the
         full model didn't move (0.60519 → 0.60525) — LightGBM had already learned to discount
-        thin surface ratings. I kept it for display accuracy and don't claim it as a gain.
+        thin surface ratings.
       </p>
       <p>
         <strong class="text-white/85">Messy data needed explicit rules.</strong> Retirements are
@@ -183,7 +186,7 @@ assert feats_n.equals(feats_2n.iloc[:N])</pre>
       <LinkButton variant="primary" href="https://tennis-predictor-dashboard.streamlit.app/" label="Open Live Dashboard" />
     </div>
     <p class="font-mono text-xs text-white/30 mt-4">
-      Six pages: match predictions, tournament simulation, backtest performance, calibration, Elo ratings, pipeline status.
+      Five pages: match predictions, tournament simulation, backtest performance, Elo ratings, pipeline status.
     </p>
     <!-- TODO: add dashboard screenshots from /public/images/ (e.g. tennis-dashboard.png) -->
   </section>

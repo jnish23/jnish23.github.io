@@ -169,7 +169,7 @@ SCHEMA:
 
     <div class="grid sm:grid-cols-2 gap-6 mt-10">
       <StatCallout value="3-layer" label="Validation pipeline" sublabel="Schema check → DDL block → EXPLAIN dry-run" />
-      <StatCallout value="0 halluc." label="Column/table errors in tested queries" sublabel="With schema injection + validation" />
+      <StatCallout value="0 hallucinations" label="Column/table errors in tested queries" sublabel="With schema injection + validation" />
     </div>
   </section>
 
@@ -181,9 +181,9 @@ SCHEMA:
     <h2 class="cs-section-title">What didn't work, and what was learned</h2>
     <div class="cs-prose">
       <p>
-        <strong class="text-white/85">Ambiguous questions are hard to handle gracefully.</strong> Questions
-        like "who's the best shooter?" are semantically underspecified — best by what metric,
-        over what sample? The current approach returns the model's best-guess interpretation
+        <strong class="text-white/85">Ambiguous questions are hard to handle.</strong> Questions
+        like "who's the best shooter?" are semantically vague - best by what metric,
+        over what timeframe? The current approach returns the model's best-guess interpretation
         alongside the SQL, so users can verify intent. A future improvement is a clarification
         step before generation.
       </p>
@@ -205,7 +205,7 @@ SCHEMA:
     <h2 class="cs-section-title">Code & deployment</h2>
     <div class="flex flex-wrap gap-4">
       <a
-        href="https://github.com/jnish23"
+        href="https://github.com/jnish23/NBA-text-to-sql"
         target="_blank"
         rel="noopener noreferrer"
         class="inline-flex items-center gap-2 font-mono text-sm text-white/60 border border-white/15 px-4 py-2.5 rounded hover:border-[#2DD4BF]/40 hover:text-white transition-colors duration-200"
@@ -219,8 +219,6 @@ SCHEMA:
       </span>
     </div>
     <p class="font-mono text-xs text-white/25 mt-4">
-      <!-- TODO: add NL-to-SQL Streamlit screenshot to /public/images/ -->
-      Screenshot gallery: drop app screenshots into /public/images/ to activate.
     </p>
   </section>
 

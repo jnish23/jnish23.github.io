@@ -6,7 +6,7 @@ import LinkButton from '@components/LinkButton.astro';
 
 <CaseStudyLayout
   title="NBA Betting Model"
-  subtitle="A hybrid team + player model for NBA moneylines, spreads and totals — built as a full production pipeline and evaluated honestly against the betting market."
+  subtitle="A hybrid team + player model for NBA moneylines, spreads and totals — built as a full production pipeline and evaluated against the betting market."
   category="Machine Learning"
   tools={['Python', 'LightGBM', 'FLAML', 'scikit-learn', 'SQLite', 'pdfplumber', 'nba_api', 'Streamlit', 'Plotly']}
   duration="Seasons 2019-20 to present · running daily in-season"
@@ -21,7 +21,8 @@ import LinkButton from '@components/LinkButton.astro';
       <p>
         Predict NBA moneylines, spreads and totals, then measure the results against the
         market rather than against raw win/loss records. The project is a full pipeline:
-        data ingestion, point-in-time features, gradient-boosted models, and a production
+        data ingestion, feature engineering without data leakage, gradient-boosted models,
+        walk-forward validation and a production
         schedule that runs daily during the season.
       </p>
     </div>
@@ -36,14 +37,10 @@ import LinkButton from '@components/LinkButton.astro';
     <div class="cs-prose">
       <p>
         Box scores come from <span class="cs-code-inline">nba_api</span>; opening and closing
-        lines come from Sports Book Review. I also archived and parsed the official NBA
+        lines come from Sports Book Review. I also archive and parse the official NBA
         injury report PDFs (2019-20 onward) with <span class="cs-code-inline">pdfplumber</span>.
-        Everything lands in a ~1 GB SQLite database.
+        Everything lands in a SQLite database.
       </p>
-    </div>
-    <div class="grid sm:grid-cols-2 gap-6 mt-8">
-      <StatCallout value="7,936" label="Games backtested" sublabel="2019-20 to 2025-26" />
-      <StatCallout value="3" label="Markets modeled" sublabel="Moneyline · spread · total" />
     </div>
   </section>
 
@@ -77,7 +74,7 @@ Probable   ≈ 93%</pre>
 
       <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Models</h3>
       <p>
-        One LightGBM model each for win probability, margin and total. Feature selection
+        One LightGBM model each for win probability (moneyline), margin (spread) and total. Feature selection
         runs in two steps: cluster correlated features, then keep only those that beat a
         shuffled-target importance baseline. Hyperparameters are tuned with FLAML, and win
         probabilities are isotonically calibrated on a time-ordered holdout.
@@ -85,9 +82,9 @@ Probable   ≈ 93%</pre>
 
       <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Evaluation</h3>
       <p>
-        Walk-forward by season: train on past seasons, test on the next. Every result is
+        Walk-forward by season: train up through season N-1, test on season N. Every result is
         compared with the de-vigged market consensus. Closing line value (CLV) is the main
-        measure of edge, because it is far less noisy than game results.
+        measure of edge, because it is far less noisy than game results or ROI.
       </p>
 
       <h3 class="font-sans font-semibold text-white/90 text-base mt-6 mb-2">Production</h3>
@@ -108,9 +105,9 @@ Probable   ≈ 93%</pre>
     <h2 class="cs-section-title">The model finds real signal, but the market is sharp </h2>
     <div class="cs-prose">
       <p>
-        The market beat the model in most seasons and every market, and the model adds
-        nothing beyond the closing line. But where the model disagrees with the opening
-        line, the lines move toward it — a measurable, if small, edge.
+        While there are some profitable seasons and markets depending on the threshold, overall the closing line market beats the model. 
+        But, when the model disagrees with the opening line, the lines move toward it, indicating that 
+        the model is adding some value, it just doesn't do it enough to overcome the vig.
       </p>
     </div>
 
@@ -125,9 +122,9 @@ Probable   ≈ 93%</pre>
           </tr>
         </thead>
         <tbody class="text-white/70">
-          <tr class="border-b border-white/5"><td class="p-3">Moneyline log loss</td><td class="p-3">0.644</td><td class="p-3">0.613</td><td class="p-3">0.606</td></tr>
-          <tr class="border-b border-white/5"><td class="p-3">Spread MAE (pts)</td><td class="p-3">11.06</td><td class="p-3">10.61</td><td class="p-3">10.48</td></tr>
-          <tr><td class="p-3">Total MAE (pts)</td><td class="p-3">15.65</td><td class="p-3">14.55</td><td class="p-3">14.26</td></tr>
+          <tr class="border-b border-white/5"><td class="p-3">Moneyline log loss</td><td class="p-3">0.619</td><td class="p-3">0.613</td><td class="p-3">0.606</td></tr>
+          <tr class="border-b border-white/5"><td class="p-3">Spread MAE (pts)</td><td class="p-3">10.73</td><td class="p-3">10.61</td><td class="p-3">10.48</td></tr>
+          <tr><td class="p-3">Total MAE (pts)</td><td class="p-3">14.71</td><td class="p-3">14.55</td><td class="p-3">14.26</td></tr>
         </tbody>
       </table>
     </div>
@@ -141,11 +138,11 @@ Probable   ≈ 93%</pre>
     <div class="cs-prose mt-8">
       <p>
         <strong class="text-white/85">Injury news is the main thing that moves NBA lines after
-        the open, and the close prices it completely.</strong> The closing line's error is
-        unrelated to reported absences (t ≈ 0). No snapshot of the injury report I tested beats
-        the opening line at a statistically credible level — the usable signal is timing, worth
+        the open, and the close prices it correctly.</strong> The closing line's error is
+        unrelated to reported absences. The usable signal is timing, worth
         about +1.8 points of CLV if you act before the market moves. I now run a timestamped
-        odds collector in-season to test whether that is achievable.
+        odds collector in-season to test whether that is achievable (My current one found the market 
+        had already moved by the time I had ingest the injury report and run the model)
       </p>
     </div>
   </section>
@@ -159,18 +156,20 @@ Probable   ≈ 93%</pre>
     <div class="cs-prose">
       <p>
         <strong class="text-white/85">Beating the closing line from public box scores is not
-        realistic.</strong> The avenues left are timing — information before the market
-        reacts — and softer markets such as player props.
+        realistic.</strong> The avenues left are timing and line shopping. You maybe be able to
+       find an edge if you can acquire and act on information (ie. injuries) before the market reacts.
+       I used draftkings odds for backtests, but better lines are possible. 
+      Lastly, and an area I am currently taking this is looking into softer markets such as player props.
       </p>
       <p>
         <strong class="text-white/85">A direct "line adjustment" model</strong> that predicts
         the opening line's error from injury news should extract more than bolting injury
-        features onto a general model, which was a statistical null in ablation.
+        features onto a general model, which was not statistically significant.
       </p>
       <p>
         <strong class="text-white/85">Early-season cold start</strong> is handled with
         exponentially weighted averages that carry across seasons; backtests show the model
-        doesn't fall further behind the market early. Roster- and market-based priors are a
+        doesn't fall further behind the market early. Roster, off-season changes and market-based priors are a
         possible improvement.
       </p>
     </div>
