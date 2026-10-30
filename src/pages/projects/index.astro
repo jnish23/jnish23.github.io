@@ -12,9 +12,10 @@ const projects = [
     description:
       'Hybrid team + player LightGBM pipeline predicting NBA moneylines, spreads and totals, with point-in-time features and walk-forward evaluation against the market. Runs daily in-season behind a live dashboard.',
     tools: ['Python', 'LightGBM', 'FLAML', 'SQLite', 'Streamlit'],
-    metric: '7,936 games backtested',
+    metric: '8000+ games backtested',
     metricSublabel: '+0.26–0.42 pts closing line value on totals',
   },
+
   {
     href: '/projects/tennis-model',
     title: 'Tennis Prediction System',
@@ -25,26 +26,7 @@ const projects = [
     metric: '66.4% accuracy',
     metricSublabel: '127,132 ATP matches, walk-forward',
   },
-  {
-    href: '/projects/nba-nlsql',
-    title: 'NL-to-SQL NBA Query Tool',
-    category: 'Data Engineering',
-    description:
-      'LLM-powered interface that translates plain-English basketball questions into SQL queries against an NBA stats database. Demonstrates schema context injection, prompt engineering, and a query validation layer.',
-    tools: ['Python', 'OpenAI API', 'SQLite', 'Streamlit'],
-    metric: 'Functional prototype',
-    metricSublabel: 'Natural language → validated SQL queries',
-  },
-  {
-    href: '/projects/running-start',
-    title: 'Dual-Enrollment Impact Analysis',
-    category: 'Causal Inference',
-    description:
-      'Causal inference on linked K-12 and postsecondary administrative data. Propensity score matching and Bayesian hierarchical models address selection bias.',
-    tools: ['R', 'brms', 'Stan', 'ggplot2'],
-    metric: 'Bayesian causal inference',
-    metricSublabel: 'Propensity matching + hierarchical models',
-  },
+
   {
     href: '/projects/translation-flashcards',
     title: 'Japanese SRS Translator',
@@ -55,6 +37,18 @@ const projects = [
     metric: 'Shipped & in daily use',
     metricSublabel: '3 LLM providers with automatic fallback',
   },
+
+  {
+    href: '/projects/running-start',
+    title: 'Dual-Enrollment Impact Analysis',
+    category: 'Causal Inference',
+    description:
+      'Causal inference on linked K-12 and postsecondary administrative data. Propensity score matching and Bayesian hierarchical models address selection bias.',
+    tools: ['R', 'brms', 'Stan', 'ggplot2'],
+    metric: 'Bayesian causal inference',
+    metricSublabel: 'Propensity matching + hierarchical models',
+  },
+
   {
     href: '/projects/sp500',
     title: 'SP500 vs. Stock Picker',
@@ -62,9 +56,21 @@ const projects = [
     description:
       'Backtesting framework that quantifies the long-term cost of active stock picking versus passive S&P 500 index investing using historical return data. Monte Carlo simulation surfaces the full distribution of outcomes.',
     tools: ['Python', 'pandas', 'yfinance', 'Plotly'],
-    metric: '[PLACEHOLDER]',
-    metricSublabel: 'Results pending — project in progress',
+    metric: 'Monte Carlo simulation',
+    metricSublabel: 'Passive vs. active returns distribution'
   },
+
+  {
+    href: '/projects/nba-nlsql',
+    title: 'NL-to-SQL NBA Query Tool',
+    category: 'Data Engineering',
+    description:
+      'LLM-powered interface that translates plain-English basketball questions into SQL queries against an NBA stats database. Demonstrates schema context injection, prompt engineering, and a query validation layer.',
+    tools: ['Python', 'OpenAI API', 'SQLite', 'Streamlit'],
+    metric: 'Functional prototype',
+    metricSublabel: 'Natural language to validated SQL queries'
+  }
+
 ];
 ---
 
